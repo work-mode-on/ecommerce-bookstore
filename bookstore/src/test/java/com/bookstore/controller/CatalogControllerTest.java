@@ -14,6 +14,9 @@ import com.bookstore.security.JwtUtils;
 import com.bookstore.security.UserDetailsServiceImpl;
 import com.bookstore.service.CatalogService;
 import com.bookstore.util.TestFixtures;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +28,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -62,7 +68,17 @@ class CatalogControllerTest {
     private BookDetailResponse bookDetail;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        // Make the mocked JwtAuthFilter pass through so requests reach the controller
+        doAnswer(inv -> {
+            ((FilterChain) inv.getArgument(2))
+                    .doFilter(inv.getArgument(0), inv.getArgument(1));
+            return null;
+        }).when(jwtAuthFilter).doFilter(
+                any(HttpServletRequest.class),
+                any(HttpServletResponse.class),
+                any(FilterChain.class));
+
         BookSummaryResponse summary = BookSummaryResponse.builder()
                 .bookId(TestFixtures.BOOK_ID_1)
                 .title("Dune")

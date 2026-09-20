@@ -22,8 +22,10 @@
     <properties>
         <java.version>17</java.version>
         <springdoc.version>2.5.0</springdoc.version>
-        <!-- Override the Lombok version managed by Spring Boot to support Java 25 -->
+        <!-- Override versions for Java 25 compatibility -->
         <lombok.version>1.18.38</lombok.version>
+        <byte-buddy.version>1.15.11</byte-buddy.version>
+        <mockito.version>5.15.2</mockito.version>
     </properties>
 
     <dependencies>
@@ -118,6 +120,21 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Allow Mockito inline mocks to work on Java 25 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>
+                        -XX:+EnableDynamicAgentLoading
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.io=ALL-UNNAMED
+                        -Dnet.bytebuddy.experimental=true
+                    </argLine>
                 </configuration>
             </plugin>
 

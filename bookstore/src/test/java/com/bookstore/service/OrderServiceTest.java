@@ -138,7 +138,7 @@ class OrderServiceTest {
             item4.setQuantity(4);
             item4.setUnitPrice(book.getPrice());
             item4.setLineTotal(book.getPrice().multiply(BigDecimal.valueOf(4))); // 59.96
-            cart.setItems(List.of(item4));
+            cart.setItems(new ArrayList<>(List.of(item4)));
 
             Order savedOrder = buildSavedOrder(59.96, 0.00, 5.40, 0.00, 65.36);
 
@@ -161,11 +161,13 @@ class OrderServiceTest {
             CreateOrderRequest req = checkoutRequest();
             req.setRedeemedGiftPoints(200);
 
+            Cart giftCart = TestFixtures.checkoutReadyCart();
             Order savedOrder = buildSavedOrder(29.98, 3.99, 2.70, 2.00, 34.67);
+            savedOrder.setRedeemedGiftPoints(200);
 
             when(userRepository.findById(TestFixtures.USER_ID)).thenReturn(Optional.of(user));
             when(addressRepository.findById(TestFixtures.ADDRESS_ID)).thenReturn(Optional.of(address));
-            when(cartRepository.findByUserUserId(TestFixtures.USER_ID)).thenReturn(Optional.of(cart));
+            when(cartRepository.findByUserUserId(TestFixtures.USER_ID)).thenReturn(Optional.of(giftCart));
             when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
             when(bookRepository.save(any(Book.class))).thenAnswer(inv -> inv.getArgument(0));
             when(cartRepository.save(any(Cart.class))).thenAnswer(inv -> inv.getArgument(0));

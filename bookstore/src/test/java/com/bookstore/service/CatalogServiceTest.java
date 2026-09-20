@@ -364,7 +364,8 @@ class CatalogServiceTest {
         @Test
         @DisplayName("getNewLaunches delegates to findNewLaunches repository method")
         void getNewLaunches_returnsBooksPage() {
-            Page<Book> page = new PageImpl<>(List.of(book2, book1));
+            Pageable pageable = PageRequest.of(0, 5);
+            Page<Book> page = new PageImpl<>(List.of(book2, book1), pageable, 2);
             when(bookRepository.findNewLaunches(any(Pageable.class))).thenReturn(page);
 
             PagedResponse<BookSummaryResponse> result = catalogService.getNewLaunches(1, 5);
